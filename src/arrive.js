@@ -307,7 +307,7 @@ var Arrive = (function(window, $, undefined) {
           utils.checkChildNodesRecursively(newNodes, registrationData, nodeMatchFunc, callbacksToBeCalled);
         }
         else if (mutation.type === "attributes" || mutation.type === "characterData") {
-          if (nodeMatchFunc(targetNode, registrationData, callbacksToBeCalled)) {
+          if (nodeMatchFunc(targetNode, registrationData, callbacksToBeCalled, mutation.type)) {
             callbacksToBeCalled.push({ callback: registrationData.callback, elem: targetNode });
           }
         }
@@ -316,9 +316,12 @@ var Arrive = (function(window, $, undefined) {
       });
     }
 
-    function nodeMatchFunc(node, registrationData, callbacksToBeCalled) {
+    function nodeMatchFunc(node, registrationData, callbacksToBeCalled, mutationType) {
       // check a single node to see if it matches the selector
       if (utils.matchesSelector(node, registrationData.selector)) {
+        if (mutationType === "characterData") {
+          return true;
+        }
         if(node._id === undefined) {
           node._id = arriveUniqueId++;
         }
