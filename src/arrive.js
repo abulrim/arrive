@@ -165,7 +165,8 @@ var Arrive = (function(window, $, undefined) {
         me              = this;
 
     var defaultOptions = {
-      fireOnAttributesModification: false
+      fireOnAttributesModification: false,
+      fireOnContentModification: false
     };
 
     // actual event registration before adding it to bucket
@@ -271,6 +272,7 @@ var Arrive = (function(window, $, undefined) {
     // Default options for 'arrive' event
     var arriveDefaultOptions = {
       fireOnAttributesModification: false,
+      fireOnContentModification: false,
       onceOnly: false,
       existing: false
     };
@@ -286,13 +288,17 @@ var Arrive = (function(window, $, undefined) {
         config.attributes = true;
       }
 
+      if (options.fireOnContentModification) {
+        config.characterData = true;
+      }
+
       return config;
     }
 
     function onArriveMutation(mutations, registrationData) {
       mutations.forEach(function( mutation ) {
         var newNodes    = mutation.addedNodes,
-            targetNode = mutation.target,
+            targetNode = mutation.type === "characterData" ? mutation.target.parentNode : mutation.target,
             callbacksToBeCalled = [],
             node;
 
@@ -300,7 +306,7 @@ var Arrive = (function(window, $, undefined) {
         if( newNodes !== null && newNodes.length > 0 ) {
           utils.checkChildNodesRecursively(newNodes, registrationData, nodeMatchFunc, callbacksToBeCalled);
         }
-        else if (mutation.type === "attributes") {
+        else if (mutation.type === "attributes" || mutation.type === "characterData") {
           if (nodeMatchFunc(targetNode, registrationData, callbacksToBeCalled)) {
             callbacksToBeCalled.push({ callback: registrationData.callback, elem: targetNode });
           }
